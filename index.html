@@ -114,5 +114,40 @@
   <body class="antialiased overflow-x-hidden">
     <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
+  <script>
+    // Runtime error fallback: display errors in-page so blank pages are diagnosable
+    window.addEventListener('error', function (e) {
+      try {
+        const pre = document.createElement('pre');
+        pre.style.cssText = 'position:fixed;left:8px;right:8px;bottom:8px;top:8px;overflow:auto;padding:16px;background:#111;color:#fff;z-index:99999;border-radius:12px;font-family:monospace;';
+        pre.textContent = 'Runtime error: ' + (e.message || (e.error && e.error.message) || String(e));
+        document.body.appendChild(pre);
+      } catch (err) {
+        console.error('Failed to render runtime error overlay', err);
+      }
+    });
+    window.addEventListener('unhandledrejection', function (e) {
+      try {
+        const pre = document.createElement('pre');
+        pre.style.cssText = 'position:fixed;left:8px;right:8px;bottom:8px;top:8px;overflow:auto;padding:16px;background:#111;color:#fff;z-index:99999;border-radius:12px;font-family:monospace;';
+        pre.textContent = 'Unhandled Rejection: ' + (e.reason && e.reason.message ? e.reason.message : String(e.reason));
+        document.body.appendChild(pre);
+      } catch (err) {
+        console.error('Failed to render rejection overlay', err);
+      }
+    });
+    // If root remains empty after mount time, show a hint
+    document.addEventListener('DOMContentLoaded', function () {
+      setTimeout(function () {
+        var root = document.getElementById('root');
+        if (root && root.children.length === 0) {
+          var hint = document.createElement('div');
+          hint.style.cssText = 'position:fixed;left:16px;right:16px;top:16px;padding:12px;background:#fff3cd;border:1px solid #ffeeba;color:#856404;border-radius:8px;z-index:99999;font-weight:700;text-align:center;';
+          hint.textContent = 'App did not render — open the browser console to see errors.';
+          document.body.appendChild(hint);
+        }
+      }, 1200);
+    });
+  </script>
 </body>
 </html>
